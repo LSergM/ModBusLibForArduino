@@ -44,7 +44,10 @@ void loop() {
   }
   if (millis() > tempus) digitalWrite(stlPin, LOW );
   //обновляем данные в регистрах Modbus и в пользовательской программе
-  io_poll();
+  if (0 != slave.getLastError()) 
+  {
+	  io_poll();
+  }
 } 
 
 void io_poll() {
