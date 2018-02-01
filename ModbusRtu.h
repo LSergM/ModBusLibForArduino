@@ -203,7 +203,15 @@ public:
   uint16_t getErrCnt(); //!<error counter
   uint8_t getID(); //!<get slave ID between 1 and 247
   uint8_t getState();
-  uint8_t getLastError(); //!<get last error message
+  uint8_t getLastError(); //!<get last error message  
+  uint8_t GetRReg(uint16_t adrReg,   uint16_t* pReg); //  
+  uint8_t GetRRegs(uint16_t adrReg,  uint16_t* pRegs, uint16_t nRegs); //
+  uint8_t GetRWReg(uint16_t adrReg,  uint16_t* pReg); //    
+  uint8_t GetRWRegs(uint16_t adrReg, uint16_t* pRegs, uint16_t nRegs); //  
+  uint8_t SetRWReg(uint16_t adrReg,  uint16_t* pReg); //    
+  uint8_t GetRBit(uint16_t adrBit,   uint8_t* pBit);  //  
+  uint8_t GetRwBit(uint16_t adrBit   uint8_t* pBit);  //
+  uint8_t SetRwBit(uint16_t adrBit   uint8_t* pBit);  //      
   void setID( uint8_t u8id ); //!<write new ID for the slave
   void end(); //!<finish any communication and release serial communication port
 };
@@ -1277,4 +1285,103 @@ int8_t Modbus::process_FC16() {
   sendTxBuffer();
 
   return u8CopyBufferSize;
+}
+
+uint8_t GetRReg(uint16_t adrReg,   uint16_t* pReg)
+{
+	if (adrReg >= SIZE_R_REGS) return ERROR_OF_ADR;
+	if (pReg == NULL) return ERROR_OF_POINTER;
+	
+	*pReg = r_regArea[adrReg];
+	return 0;
+}
+
+uint8_t GetRRegs(uint16_t adrReg,  uint16_t* pRegs, uint16_t nRegs)
+{
+	if ((adrReg  + nRegs) >= SIZE_R_REGS) return ERROR_OF_ADR;
+	if (pRegs == NULL) return ERROR_OF_POINTER;
+	
+	for (uint16_t i = 0; i < nRegs; ++)
+	{
+		pRegs[i] = r_regArea[adrReg + i];
+	}
+	return 0;
+}
+
+uint8_t GetRWReg(uint16_t adrReg,  uint16_t* pReg)
+{
+	if (adrReg >= SIZE_RW_REGS) return ERROR_OF_ADR;
+	if (pReg == NULL) return ERROR_OF_POINTER;
+	
+	*pReg = rw_regArea[adrReg];
+	return 0;	
+}
+
+uint8_t GetRWRegs(uint16_t adrReg, uint16_t* pRegs, uint16_t nRegs)
+{
+	if ((adrReg  + nRegs) >= SIZE_RW_REGS) return ERROR_OF_ADR;
+	if (pRegs == NULL) return ERROR_OF_POINTER;
+	
+	for (uint16_t i = 0; i < nRegs; ++)
+	{
+		pRegs[i] = rw_regArea[adrReg + i];
+	}
+	return 0;	
+}
+
+uint8_t SetRWReg(uint16_t adrReg,  uint16_t* pReg)
+{
+	if (adrReg >= SIZE_RW_REGS) return ERROR_OF_ADR;
+	if (pReg == NULL) return ERROR_OF_POINTER;
+	
+	rw_regArea[adrReg] = *pReg;
+	return 0;		
+}
+
+uint8_t GetRBit(uint16_t adrBit,   uint8_t* pBit)
+{
+	if (adrBit >= SIZE_R_BITS) return ERROR_OF_ADR;
+	if (pBit == NULL) return ERROR_OF_POINTER;
+	
+	if (r_bitArea[adrReg/16] & (1 << (adrReg % 16)))
+	{
+		*pBit = 1;
+	}
+	else
+	{
+		*pBit = 0;
+	}
+	return 0;		
+}
+
+uint8_t GetRwBit(uint16_t adrBit   uint8_t* pBit)
+{
+	if (adrBit >= SIZE_RW_BITS) return ERROR_OF_ADR;
+	if (pBit == NULL) return ERROR_OF_POINTER;
+	
+	if (rw_bitArea[adrReg/16] & (1 << (adrReg % 16)))
+	{
+		*pBit = 1;
+	}
+	else
+	{
+		*pBit = 0;
+	}
+	return 0;		
+}
+
+uint8_t SetRwBit(uint16_t adrBit   uint8_t* pBit)
+{
+	if (adrBit >= SIZE_RW_BITS) return ERROR_OF_ADR;
+	if (pBit == NULL) return ERROR_OF_POINTER;
+	
+	if (*pBit)
+	{
+		rw_bitArea[adrReg/16] |= (1 << (adrReg % 16));
+	}
+	else
+	{
+		rw_bitArea[adrReg/16] &= ~(1 << (adrReg % 16));
+	}
+	return 0;		
 }
