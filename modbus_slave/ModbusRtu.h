@@ -1112,13 +1112,15 @@ int8_t Modbus::process_FC3() {
   uint8_t  u8CopyBufferSize;
   uint8_t i;    
   uint16_t u16StartAdd = word( au8Buffer[ ADD_HI ], au8Buffer[ ADD_LO ] );
-  uint16_t u16regsno = word( au8Buffer[ NB_HI ], au8Buffer[ NB_LO ] );  
+  uint16_t u8regsno = word( au8Buffer[ NB_HI ], au8Buffer[ NB_LO ] );  
 
-//  au8Buffer[ 2 ]       = u8regsno * 2;
+  au8Buffer[ 2 ]       = u8regsno * 2;
   u8BufferSize         = 3;
 
-  for (i = u16StartAdd; i < u16StartAdd + u16regsno; i++) {
-	rw_regArea[i] = word( au8Buffer[ ++u8BufferSize ], au8Buffer[ u8BufferSize ] );  
+  for (i = u16StartAdd; i < u16StartAdd + u8regsno; i++) {
+    au8Buffer[ u8BufferSize ] = highByte(rw_regArea[i]);
+    u8BufferSize++;
+    au8Buffer[ u8BufferSize ] = lowByte(rw_regArea[i]);   
     u8BufferSize++;
   }
   u8CopyBufferSize = u8BufferSize +2;
@@ -1140,13 +1142,15 @@ int8_t Modbus::process_FC4() {
   uint8_t  u8CopyBufferSize;
   uint8_t i;    
   uint16_t u16StartAdd = word( au8Buffer[ ADD_HI ], au8Buffer[ ADD_LO ] );
-  uint16_t u16regsno = word( au8Buffer[ NB_HI ], au8Buffer[ NB_LO ] );  
+  uint16_t u8regsno = word( au8Buffer[ NB_HI ], au8Buffer[ NB_LO ] );  
 
-//  au8Buffer[ 2 ]       = u8regsno * 2;
+  au8Buffer[ 2 ]       = u8regsno * 2;
   u8BufferSize         = 3;
 
-  for (i = u16StartAdd; i < u16StartAdd + u16regsno; i++) {
-	r_regArea[i] = word( au8Buffer[ ++u8BufferSize ], au8Buffer[ u8BufferSize ] );      
+  for (i = u16StartAdd; i < u16StartAdd + u8regsno; i++) {
+    au8Buffer[ u8BufferSize ] = highByte(r_regArea[i]);
+    u8BufferSize++;
+    au8Buffer[ u8BufferSize ] = lowByte(r_regArea[i]);   
     u8BufferSize++;
   }
   u8CopyBufferSize = u8BufferSize +2;
